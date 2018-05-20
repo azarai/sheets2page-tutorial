@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title th:text="${site.name}">Hi Site</title>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+<script defer
+	src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+</head>
+<body>
+	<section class="section">
+		<div class="container">
+			<h1 class="title" th:text="${site.name}">Hello World</h1>
+			<p class="subtitle" th:text="${site.slogan}">Sample site</p>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="container">
+			<div class="columns">
+				<div class="column is-one-quarter" th:each="item : ${items}">
+					<div class="card">
+						<div class="card-image">
+							<figure class="image">
+								<img th:src="${item.image}"
+									alt="Placeholder image">
+							</figure>
+						</div>
+						<div class="card-content">
+							<div class="media">
+								<div class="media-content">
+									<p class="title is-4" th:text="${item.name}">Alien</p>
+
+								</div>
+							</div>
+
+							<div class="content" th:text="${item.description}">
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</section>
+
+</body>
+</html>

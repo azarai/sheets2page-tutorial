@@ -24,15 +24,20 @@ class PageController(@Value("\${google.api.key}") googleKey: String) {
 	fun getSite(@PathVariable("sheetId") sheetId: String?, model: ModelAndView): ModelAndView {
 
 		println(googleKey)
-		val sheetsService = Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, null).setSheetsRequestInitializer(SheetsRequestInitializer(googleKey)).build()
+		val sheetsService = Sheets.Builder(
+				HTTP_TRANSPORT,
+				JSON_FACTORY,
+				null
+			).setSheetsRequestInitializer(SheetsRequestInitializer(googleKey)).build()
 
 		val response: BatchGetValuesResponse = sheetsService.spreadsheets().values()
-				.batchGet(sheetId).setRanges(listOf("items!A3:E", "siteinfo!A3:E"))
+				.batchGet(sheetId).setRanges(listOf("items!A3:Z", "siteinfo!A3:Z"))
 				.execute();
 		val values = response.getValueRanges();
 
 		model.addObject("items", buildItems(values))
 		model.addObject("site", buildSiteMeta(values))
+		model.addObject("mapsKey", googleKey)
 		model.setViewName("site")
 
 		return model
@@ -53,6 +58,7 @@ class PageController(@Value("\${google.api.key}") googleKey: String) {
 	private fun buildSiteMeta(values: List<ValueRange>): Site {
 		var sitename: String = ""
 		var slogan: String = ""
+		var owner: String =""
 
 		val vr = getSheet("siteinfo", values)
 
@@ -65,10 +71,14 @@ class PageController(@Value("\${google.api.key}") googleKey: String) {
 			if ("slogan" == fieldValue) {
 				slogan = row.get(1) as String
 			}
+			if ("owner" == fieldValue) {
+				owner = row.get(1) as String
+			}
+
 		}
 
 
-		return Site(sitename, slogan)
+		return Site(sitename, slogan, owner)
 	}
 
 	private fun buildItems(values: List<ValueRange>): List<Item> {
@@ -77,9 +87,17 @@ class PageController(@Value("\${google.api.key}") googleKey: String) {
 
 		for (row in vr!!.getValues()) {
 			// Print columns A and E, which correspond to indices 0 and 4.
-			System.out.printf("%s, %s\n", row.get(0), row.get(1));
+			//System.out.printf("%s, %s\n", row.get(0), row.get(1));
 
-			result.add(Item(row.get(0) as String, row.get(1) as String, row.get(2) as String))
+			println(row)
+
+			result.add(Item(
+					row.getOrNull(0) as String?,
+					row.getOrNull(1) as String?,
+					row.getOrNull(3) as String?,
+					row.getOrNull(5) as String?,
+					row.getOrNull(6) as String?
+			))
 
 		}
 

@@ -8,35 +8,51 @@
 	href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
 <script defer
 	src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+
+	<style>
+       #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
 </head>
 <body>
+	<section class="hero is-medium">
+
+		<div class="hero-body">
+			<div class="container">
+			<h1 class="title" th:text="${site.name}" th:if="${site.name}">Hello World</h1>
+			<p class="subtitle" th:text="${site.slogan}" th:if="${site.slogan}">Sample site</p>
+			</div>
+		</div>
+	</section>
+
+
 	<section class="section">
 		<div class="container">
-			<h1 class="title" th:text="${site.name}">Hello World</h1>
-			<p class="subtitle" th:text="${site.slogan}">Sample site</p>
+			<div class="columns">
+				<div class="column">
+					<div id="map"></div>
+				</div>
+			</div>
 		</div>
 	</section>
 
 	<section class="section">
 		<div class="container">
-			<div class="columns">
+			<div class="columns is-multiline">
 				<div class="column is-one-quarter" th:each="item : ${items}">
 					<div class="card">
-						<div class="card-image">
+						<div class="card-image" th:if="${item.image}">
 							<figure class="image">
 								<img th:src="${item.image}"
-									alt="Placeholder image">
+									 th:alt="${item.name}">
 							</figure>
 						</div>
 						<div class="card-content">
-							<div class="media">
-								<div class="media-content">
-									<p class="title is-4" th:text="${item.name}">Alien</p>
+							<h2 class="title is-4" th:text="${item.name}"  th:if="${item.name}">Alien</h2>
 
-								</div>
-							</div>
-
-							<div class="content" th:text="${item.description}">
+							<div class="content" th:text="${item.description}" th:if="${item.description}">
 
 							</div>
 						</div>
@@ -46,6 +62,67 @@
 			</div>
 		</div>
 	</section>
+	<footer class="footer">
+		<div class="container">
+			<div class="content has-text-centered">
+				<p>
+					<span th:if="${#strings.isEmpty(site.owner) == false}">Designed by <span th:text="${site.owner}">Anonymous guy</span> and </span>powered by <strong><a href="http://TODO">spreadsheet2site.com</a></strong>.
+				</p>
+			</div>
+		</div>
+	</footer>
 
+	<script th:inline="javascript">
+
+      function initMap() {
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+
+        zoom: 4
+        });
+
+		var data = /*[[${items}]]*/;
+
+		var bounds  = new google.maps.LatLngBounds();
+
+		var infowindow = new google.maps.InfoWindow();
+
+		for(var i=0; i< data.length;i++) {
+
+			if(data[i].lat !== null && data[i].lat !== "") {
+
+				var marker = new google.maps.Marker({
+				  position: {lat: parseFloat(data[i].lat), lng: parseFloat(data[i].lng)},
+				  map: map,
+				  title: data[i].name
+				});
+
+				var infoContent = '<div id="content">'+
+				'<h1 id="firstHeading" class="firstHeading">' + data[i].name + '</h1>'+
+				'<p><img src="' + data[i].image + '"><br>' + data[i].description + '</p>'+
+				'</div>';
+
+
+				google.maps.event.addListener(marker,'click', (function(marker,content){
+					return function() {
+						infowindow.setContent(content);
+						infowindow.open(map,marker);
+					};
+				})(marker,infoContent));
+
+				var loc = new google.maps.LatLng(marker.position.lat(), marker.position.lng());
+				bounds.extend(loc);
+			}
+		 }
+
+		map.fitBounds(bounds);
+		map.panToBounds(bounds);
+
+      }
+
+    </script>
+	<script async defer
+			th:src="|https://maps.googleapis.com/maps/api/js?key=${mapsKey}&callback=initMap|">
+	</script>
 </body>
 </html>

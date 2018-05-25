@@ -1,4 +1,4 @@
 package de.codeboje.tuts.sheet2site
 
-data class Site (val name:String , val slogan:String) {
+data class Site (val name:String , val slogan:String, val owner:String) {
 }
